@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- El maximum-scale=1.0 y user-scalable=no evitan que la pantalla haga zoom en móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego ODS 12 - Soporte Móvil</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            overflow: hidden; /* Evita que la pantalla se deslice en móviles */
+            font-family: Arial, sans-serif;
+            color: white;
+            /* Evitar selección de texto al tocar rápido */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none; 
+        }
+        canvas {
+            display: block;
+            background-color: #a8e6cf;
+        }
+
+        /* --- PANELES DE UI --- */
+        .panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        #ui-container { top: 15px; left: 15px; min-width: 130px; }
+        #ranking-container { top: 15px; right: 15px; min-width: 150px; }
+        
+        #lista-ranking { padding-left: 20px; margin-bottom: 0; }
+        #lista-ranking li { margin-bottom: 5px; }
+        h3 { margin-top: 0; color: #f1c40f; font-size: 1.1em;}
+        p { margin: 5px 0; font-size: 0.9em; }
+        .puntos-destacados { color: #2ecc71; font-weight: bold; font-size: 1.2em;}
+        #ui-peso { color: #e74c3c; font-weight: bold; }
+
+        /* --- CONTROLES TÁCTILES (Ocultos por defecto en PC) --- */
+        #controles-moviles {
+            display: none; 
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            pointer-events: none; /* Deja pasar los clics donde no hay botones */
+            z-index: 20;
+        }
+
+        .cruceta {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            display: grid;
+            grid-template-columns: 50px 50px 50px;
+            grid-template-rows: 50px 50px 50px;
+            gap: 5px;
+            pointer-events: auto;
+        }
+
+        .btn-accion-container {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            pointer-events: auto;
+        }
+
+        .btn-tactil {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Efecto táctil */
+            touch-action: manipulation;
+        }
+        .btn-tactil:active { background: rgba(255, 255, 255, 0.6); }
+
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 3; }
+
+        #btn-accion {
+            width: 70px;
+            height: 70px;
+            font-size: 30px;
+            background: rgba(46, 204, 113, 0.4); /* Botón verde */
+            border-color: rgba(46, 204, 113, 0.8);
+        }
+        #btn-accion:active { background: rgba(46, 204, 113, 0.8); }
+
+        /* MAGIA: Si la pantalla es pequeña (Celular), mostramos los botones */
+        @media (max-width: 768px) {
+            #controles-moviles { display: block; }
+            /* Hacemos los paneles un poco más chicos para que no estorben */
+            .panel { padding: 10px; transform: scale(0.9); transform-origin: top; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Panel Izquierdo -->
+    <div id="ui-container" class="panel">
+        <h3>Progreso</h3>
+        <p>👤 <span id="ui-nombre" style="color: #3498db;"></span></p>
+        <p>⭐ <span id="ui-puntos" class="puntos-destacados">0</span> pts</p>
+        <hr>
+        <p>🎒 <span id="ui-peso">Ligera</span></p>
+        <p>Plástico: <span id="inv-plastico">0</span></p>
+        <p>Papel: <span id="inv-papel">0</span></p>
+    </div>
+
+    <!-- Panel Derecho -->
+    <div id="ranking-container" class="panel">
+        <h3>🏆 Top 5</h3>
+        <ol id="lista-ranking">
+            <li>Cargando...</li>
+        </ol>
+    </div>
+
+    <!-- CONTROLES PARA CELULAR -->
+    <div id="controles-moviles">
+        <div class="cruceta">
+            <div id="btn-up" class="btn-tactil">▲</div>
+            <div id="btn-left" class="btn-tactil">◀</div>
+            <div id="btn-down" class="btn-tactil">▼</div>
+            <div id="btn-right" class="btn-tactil">▶</div>
+        </div>
+        <div class="btn-accion-container">
+            <div id="btn-accion" class="btn-tactil">🖐️</div>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Script -->
+    <script src="game.js"></script>
+    
+</body>
+</html>
