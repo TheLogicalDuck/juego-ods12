@@ -27,7 +27,7 @@ const jugador = {
     velocidadBase: 6,      
     velocidadActual: 6,
     velocidadMinima: 1.5,  
-    icono: '🧑🎒', // Gráfico del jugador
+    icono: '🧑', // Gráfico del jugador
     rangoInteraccion: 60, 
     puntos: 0,
     inventario: { plastico: 0, papel: 0 }
