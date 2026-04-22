@@ -2,18 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- El maximum-scale=1.0 y user-scalable=no evitan que la pantalla haga zoom en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Juego ODS 12 - Soporte Móvil</title>
+    <title>Eco-Reciclador ODS 12</title>
+    
+    <!-- Fuente profesional de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #2c3e50;
-            overflow: hidden; /* Evita que la pantalla se deslice en móviles */
-            font-family: Arial, sans-serif;
-            color: white;
-            /* Evitar selección de texto al tocar rápido */
+            background-color: #1a252c;
+            overflow: hidden; 
+            font-family: 'Poppins', sans-serif; /* Fuente moderna */
+            color: #e2e8f0;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none; 
@@ -23,66 +25,136 @@
             background-color: #a8e6cf;
         }
 
-        /* --- PANELES DE UI --- */
-        .panel {
+        /* --- ESTILO GLASSMORPHISM (Vidrio Esmerilado) --- */
+        .glass-panel {
             position: absolute;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.65); /* Azul muy oscuro transparente */
+            backdrop-filter: blur(12px); /* Efecto borroso de Apple */
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             z-index: 10;
         }
-        #ui-container { top: 15px; left: 15px; min-width: 130px; }
-        #ranking-container { top: 15px; right: 15px; min-width: 150px; }
-        
-        #lista-ranking { padding-left: 20px; margin-bottom: 0; }
-        #lista-ranking li { margin-bottom: 5px; }
-        h3 { margin-top: 0; color: #f1c40f; font-size: 1.1em;}
-        p { margin: 5px 0; font-size: 0.9em; }
-        .puntos-destacados { color: #2ecc71; font-weight: bold; font-size: 1.2em;}
-        #ui-peso { color: #e74c3c; font-weight: bold; }
 
-        /* --- CONTROLES TÁCTILES (Ocultos por defecto en PC) --- */
+        /* --- PANEL IZQUIERDO (Inventario) --- */
+        #ui-container { top: 20px; left: 20px; min-width: 180px; }
+        
+        h3 { 
+            margin: 0 0 15px 0; 
+            color: #fbbf24; /* Amarillo dorado */
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.1em;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .puntos-destacados { 
+            color: #4ade80; /* Verde brillante */
+            font-weight: 800; 
+            font-size: 1.4em;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); /* Resplandor */
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        #ui-peso { 
+            font-size: 0.85em; 
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        /* --- PANEL DERECHO (Ranking) --- */
+        #ranking-container { top: 20px; right: 20px; min-width: 220px; }
+        
+        #lista-ranking { 
+            list-style: none; /* Quitamos los números feos */
+            padding: 0; 
+            margin: 0; 
+        }
+        
+        #lista-ranking li { 
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 8px; 
+            padding: 10px 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+        #lista-ranking li:hover {
+            transform: translateX(-5px);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* --- CONTROLES MÓVILES (Estilo Arcade Moderno) --- */
         #controles-moviles {
             display: none; 
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 150px;
-            pointer-events: none; /* Deja pasar los clics donde no hay botones */
+            height: 180px;
+            pointer-events: none; 
             z-index: 20;
         }
 
         .cruceta {
             position: absolute;
-            left: 20px;
-            bottom: 20px;
+            left: 30px;
+            bottom: 30px;
             display: grid;
-            grid-template-columns: 50px 50px 50px;
-            grid-template-rows: 50px 50px 50px;
-            gap: 5px;
+            grid-template-columns: 60px 60px 60px;
+            grid-template-rows: 60px 60px 60px;
+            gap: 8px;
             pointer-events: auto;
         }
 
         .btn-accion-container {
             position: absolute;
-            right: 30px;
-            bottom: 30px;
+            right: 40px;
+            bottom: 40px;
             pointer-events: auto;
         }
 
         .btn-tactil {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            color: white;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Efecto táctil */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             touch-action: manipulation;
         }
-        .btn-tactil:active { background: rgba(255, 255, 255, 0.6); }
+        .btn-tactil:active { 
+            background: rgba(255, 255, 255, 0.4); 
+            transform: scale(0.95);
+        }
 
         #btn-up { grid-column: 2; grid-row: 1; }
         #btn-left { grid-column: 1; grid-row: 2; }
@@ -90,44 +162,59 @@
         #btn-down { grid-column: 2; grid-row: 3; }
 
         #btn-accion {
-            width: 70px;
-            height: 70px;
-            font-size: 30px;
-            background: rgba(46, 204, 113, 0.4); /* Botón verde */
-            border-color: rgba(46, 204, 113, 0.8);
+            width: 80px;
+            height: 80px;
+            font-size: 35px;
+            background: rgba(74, 222, 128, 0.3); 
+            border-color: rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
-        #btn-accion:active { background: rgba(46, 204, 113, 0.8); }
+        #btn-accion:active { background: rgba(74, 222, 128, 0.6); }
 
-        /* MAGIA: Si la pantalla es pequeña (Celular), mostramos los botones */
         @media (max-width: 768px) {
             #controles-moviles { display: block; }
-            /* Hacemos los paneles un poco más chicos para que no estorben */
-            .panel { padding: 10px; transform: scale(0.9); transform-origin: top; }
+            .glass-panel { padding: 12px; transform: scale(0.85); transform-origin: top; }
         }
     </style>
 </head>
 <body>
 
     <!-- Panel Izquierdo -->
-    <div id="ui-container" class="panel">
-        <h3>Progreso</h3>
-        <p>👤 <span id="ui-nombre" style="color: #3498db;"></span></p>
-        <p>⭐ <span id="ui-puntos" class="puntos-destacados">0</span> pts</p>
-        <hr>
-        <p>🎒 <span id="ui-peso">Ligera</span></p>
-        <p>Plástico: <span id="inv-plastico">0</span></p>
-        <p>Papel: <span id="inv-papel">0</span></p>
+    <div id="ui-container" class="glass-panel">
+        <h3>Tu Impacto</h3>
+        <div class="info-row">
+            <span>👤 <span id="ui-nombre" style="color: #60a5fa; font-weight: 600;"></span></span>
+        </div>
+        <div class="info-row">
+            <span>⭐ Puntos:</span>
+            <span id="ui-puntos" class="puntos-destacados">0</span>
+        </div>
+        
+        <h3 style="margin-top: 15px; font-size: 0.9em; color:#94a3b8;">Inventario</h3>
+        <div class="info-row" style="margin-bottom: 15px;">
+            <span>🎒 Carga:</span>
+            <span id="ui-peso">Ligera</span>
+        </div>
+        
+        <div class="info-row">
+            <span>🧴 Plástico</span>
+            <span class="badge" id="inv-plastico">0</span>
+        </div>
+        <div class="info-row">
+            <span>🗞️ Papel</span>
+            <span class="badge" id="inv-papel">0</span>
+        </div>
     </div>
 
     <!-- Panel Derecho -->
-    <div id="ranking-container" class="panel">
-        <h3>🏆 Top 5</h3>
-        <ol id="lista-ranking">
-            <li>Cargando...</li>
-        </ol>
+    <div id="ranking-container" class="glass-panel">
+        <h3>🏆 Leaderboard</h3>
+        <ul id="lista-ranking">
+            <li>Cargando datos...</li>
+        </ul>
     </div>
 
-    <!-- CONTROLES PARA CELULAR -->
+    <!-- Controles Móviles -->
     <div id="controles-moviles">
         <div class="cruceta">
             <div id="btn-up" class="btn-tactil">▲</div>
@@ -136,14 +223,13 @@
             <div id="btn-right" class="btn-tactil">▶</div>
         </div>
         <div class="btn-accion-container">
-            <div id="btn-accion" class="btn-tactil">🖐️</div>
+            <div id="btn-accion" class="btn-tactil">♻️</div>
         </div>
     </div>
 
     <!-- Canvas -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Script -->
     <script src="game.js"></script>
     
 </body>
