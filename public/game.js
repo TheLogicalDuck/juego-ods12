@@ -14,12 +14,9 @@ ajustarCanvas();
 
 const mundo = { ancho: 2000, alto: 2000 };
 
-let nombreUsuario = prompt("Ingresa tu nombre de jugador:") || "Invitado_" + Math.floor(Math.random() * 1000);
-document.getElementById('ui-nombre').innerText = nombreUsuario;
-
 // --- ESTADO DEL JUEGO ---
 const jugador = {
-    id: nombreUsuario, 
+    id: "", // Se llena al hacer Login
     x: mundo.ancho / 2, 
     y: mundo.alto / 2,
     ancho: 40,
@@ -27,19 +24,19 @@ const jugador = {
     velocidadBase: 6,      
     velocidadActual: 6,
     velocidadMinima: 1.5,  
-    icono: '🧑', // Gráfico del jugador
+    icono: '🧑‍🔧', 
     rangoInteraccion: 60, 
     puntos: 0,
     inventario: { plastico: 0, papel: 0 }
 };
 
-// MEJORA 1: Dos contenedores separados
+// Zonas Separadas de Reciclaje
 const zonasReciclaje = [
     { id: 'plastico', x: mundo.ancho/2 - 120, y: mundo.alto/2 - 60, ancho: 100, alto: 100, color: '#f1c40f', tipo: 'Plástico', titulo: 'PLÁSTICO', icono: '🟡' },
     { id: 'papel', x: mundo.ancho/2 + 20, y: mundo.alto/2 - 60, ancho: 100, alto: 100, color: '#3498db', tipo: 'Papel', titulo: 'PAPEL', icono: '🔵' }
 ];
 
-// Materiales con sprites (Emojis)
+// Generar Materiales 
 let materiales =[];
 for(let i=0; i<40; i++) {
     materiales.push({
@@ -47,7 +44,7 @@ for(let i=0; i<40; i++) {
         x: Math.random() * mundo.ancho,
         y: Math.random() * mundo.alto,
         tipo: i % 2 === 0 ? 'Plástico' : 'Papel',
-        icono: i % 2 === 0 ? '🧴' : '🗞️', // Botella o Periódico
+        icono: i % 2 === 0 ? '🧴' : '🗞️',
         tamaño: 20,
         recogido: false
     });
@@ -56,33 +53,66 @@ for(let i=0; i<40; i++) {
 const teclas = {};
 let objetoCercano = null; 
 
-// Para la racha (Mensajes visuales en pantalla)
+// Para la Racha / Combo
 let efectoVisual = { texto: "", opacidad: 0, x: 0, y: 0 };
-
 function mostrarMensajeFlotante(texto, x, y) {
     efectoVisual = { texto, opacidad: 1, x, y };
 }
 
-// --- CONEXIÓN AL BACKEND ---
-async function cargarDatosJugador() {
+
+// --- SISTEMA DE AUTENTICACIÓN (LOGIN) ---
+async function autenticar(accion) {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    const errorTxt = document.getElementById('login-error');
+
+    if (!user || !pass) {
+        errorTxt.innerText = "Llena ambos campos.";
+        errorTxt.style.display = "block";
+        return;
+    }
+
     try {
-        const respuesta = await fetch('/api/jugador', {
+        const respuesta = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: jugador.id })
+            body: JSON.stringify({ username: user, password: pass, accion: accion })
         });
+        
         const datos = await respuesta.json();
-        if (datos) {
+
+        if (!respuesta.ok) {
+            errorTxt.innerText = datos.error;
+            errorTxt.style.display = "block";
+        } else {
+            // ¡LOGIN EXITOSO!
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'block';
+            
+            // Asignar datos de MongoDB al jugador
+            jugador.id = datos.username;
             jugador.puntos = datos.puntos || 0;
             if (datos.inventario) {
                 jugador.inventario.plastico = datos.inventario.plastico || 0;
                 jugador.inventario.papel = datos.inventario.papel || 0;
             }
+            
+            document.getElementById('ui-nombre').innerText = jugador.id;
+            
+            // Iniciar el juego
+            actualizarUI();
+            actualizarPeso();
+            obtenerRanking();
+            loop(); 
         }
-        actualizarUI();
-        actualizarPeso();
-    } catch (error) { console.error("Error conectando al servidor:", error); }
+    } catch (error) {
+        errorTxt.innerText = "Error conectando al servidor.";
+        errorTxt.style.display = "block";
+    }
 }
+
+
+// --- CONEXIÓN AL BACKEND (GUARDAR Y RANKING) ---
 
 async function guardarProgreso() {
     try {
@@ -108,13 +138,13 @@ async function obtenerRanking() {
         top5.forEach((j, index) => {
             const li = document.createElement('li');
             
-            // Asignar medallas a los top 3
+            // Medallas
             let medalla = '🏅';
             if (index === 0) medalla = '🥇';
             if (index === 1) medalla = '🥈';
             if (index === 2) medalla = '🥉';
 
-            // Resaltar si soy yo
+            // Resaltar Jugador Actual
             let estiloNombre = "color: #e2e8f0;";
             let nombre = j.username;
             if (j.username === jugador.id) {
@@ -134,7 +164,7 @@ async function obtenerRanking() {
     } catch (error) { console.error("Error al ranking:", error); }
 }
 
-// --- EVENTOS DE TECLADO ---
+// --- EVENTOS DE CONTROLES ---
 window.addEventListener('keydown', (e) => {
     teclas[e.code] = true;
     if (e.code === 'Space') {
@@ -144,7 +174,7 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => teclas[e.code] = false );
 
-// --- EVENTOS TÁCTILES (CELULAR) ---
+// Celular
 function configurarBotonTactil(idBoton, codigoTecla) {
     const btn = document.getElementById(idBoton);
     if (!btn) return;
@@ -166,7 +196,6 @@ function interactuar() {
     if (!objetoCercano) return;
 
     if (objetoCercano.esZona) {
-        // MEJORA 1 y 4: Clasificación correcta y Combos
         const zona = objetoCercano;
         let cantidadAReciclar = 0;
         let puntosBase = 0;
@@ -182,11 +211,10 @@ function interactuar() {
             jugador.inventario.papel = 0;
         }
 
-        // Si recicló algo correcto en el basurero correcto
         if (cantidadAReciclar > 0) {
             let multiplicador = 1;
             
-            // LA RACHA: Si trae 5 o más, doble de puntos
+            // COMBO X2
             if (cantidadAReciclar >= 5) {
                 multiplicador = 2;
                 mostrarMensajeFlotante(`¡COMBO x2! 🔥 +${puntosBase * 2}`, jugador.x, jugador.y);
@@ -200,12 +228,10 @@ function interactuar() {
             guardarProgreso(); 
             obtenerRanking(); 
         } else {
-            // Si el basurero es de plástico y solo trae papel
             mostrarMensajeFlotante(`❌ No traes ${zona.tipo}`, jugador.x, jugador.y);
         }
 
     } else {
-        // Recoger material del piso
         const mat = objetoCercano;
         mat.recogido = true;
         
@@ -241,9 +267,9 @@ function actualizarPeso() {
     );
 
     const uiPeso = document.getElementById('ui-peso');
-    if (totalItems === 0) uiPeso.innerText = "Ligera 🟢";
-    else if (totalItems < 5) uiPeso.innerText = "Normal 🟡 (¡Pronto habrá combo!)";
-    else uiPeso.innerText = "¡Lenta! 🔴 (¡Combo Listo!)";
+    if (totalItems === 0) { uiPeso.innerText = "Ligera 🟢"; uiPeso.style.color = "#4ade80"; }
+    else if (totalItems < 5) { uiPeso.innerText = "Normal 🟡 (Combo pronto)"; uiPeso.style.color = "#fbbf24"; }
+    else { uiPeso.innerText = "¡Pesada! 🔴 (Combo Listo)"; uiPeso.style.color = "#ef4444"; }
 }
 
 function actualizarLogica() {
@@ -266,7 +292,6 @@ function actualizarLogica() {
     const centroX = jugador.x + (jugador.ancho / 2);
     const centroY = jugador.y + (jugador.alto / 2);
 
-    // Revisar proximidad a Zonas
     zonasReciclaje.forEach(zona => {
         const distZona = Math.hypot(centroX - (zona.x + zona.ancho/2), centroY - (zona.y + zona.alto/2));
         if (distZona <= jugador.rangoInteraccion + (zona.ancho/2)) {
@@ -274,7 +299,6 @@ function actualizarLogica() {
         }
     });
 
-    // Revisar proximidad a Materiales (Si no está en una zona)
     if (!objetoCercano) {
         materiales.forEach(mat => {
             if (!mat.recogido) {
@@ -298,7 +322,6 @@ function actualizarUI() {
 function dibujarJuego() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Suelo
     ctx.strokeStyle = 'rgba(0,0,0,0.05)';
     ctx.lineWidth = 2;
     for(let i = 0; i <= mundo.ancho; i += 100) {
@@ -314,13 +337,12 @@ function dibujarJuego() {
         ctx.stroke();
     }
 
-    // Dibujar Zonas de Reciclaje
     zonasReciclaje.forEach(zona => {
         ctx.fillStyle = zona.color;
         ctx.fillRect(zona.x - camara.x, zona.y - camara.y, zona.ancho, zona.alto);
         
         ctx.fillStyle = "white";
-        ctx.font = "bold 14px Arial";
+        ctx.font = "bold 14px Poppins";
         ctx.textAlign = "center";
         ctx.fillText(zona.titulo, zona.x - camara.x + (zona.ancho/2), zona.y - camara.y + 30);
         
@@ -328,7 +350,6 @@ function dibujarJuego() {
         ctx.fillText(zona.icono, zona.x - camara.x + (zona.ancho/2), zona.y - camara.y + 80);
     });
 
-    // Materiales (SPRITES con Emojis)
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     materiales.forEach(mat => {
@@ -338,21 +359,19 @@ function dibujarJuego() {
         }
     });
 
-    // Jugador (SPRITE con Emoji)
     ctx.font = "40px Arial";
     ctx.fillText(jugador.icono, jugador.x - camara.x + (jugador.ancho/2), jugador.y - camara.y + (jugador.alto/2));
 
-    // Tooltip Flotante de Interacción
     if (objetoCercano) {
         const px = jugador.x - camara.x + jugador.ancho / 2;
         const py = jugador.y - camara.y - 30;
         
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
         ctx.beginPath();
-        ctx.roundRect(px - 60, py - 35, 120, 30, 5); 
+        ctx.roundRect(px - 60, py - 35, 120, 30, 8); 
         ctx.fill();
         ctx.fillStyle = "white";
-        ctx.font = "12px Arial";
+        ctx.font = "12px Poppins";
         
         if (objetoCercano.esZona) {
             ctx.fillText(`Reciclar ${objetoCercano.tipo}`, px, py - 22);
@@ -360,36 +379,31 @@ function dibujarJuego() {
             ctx.fillText("[ ESPACIO ]", px, py - 10);
         } else {
             ctx.fillText(`Tomar ${objetoCercano.tipo}`, px, py - 22);
-            ctx.fillStyle = "#2ecc71"; 
+            ctx.fillStyle = "#4ade80"; 
             ctx.fillText("[ ESPACIO ]", px, py - 10);
         }
     }
 
-    // Animación de Mensaje Flotante (Combo)
+    // Animación de Combo
     if (efectoVisual.opacidad > 0) {
-        ctx.fillStyle = `rgba(255, 69, 0, ${efectoVisual.opacidad})`; // Naranja intenso
-        ctx.font = "bold 26px Arial";
+        ctx.fillStyle = `rgba(251, 191, 36, ${efectoVisual.opacidad})`; 
+        ctx.font = "bold 28px Poppins";
         ctx.textAlign = "center";
-        // Dibuja borde negro para que resalte
-        ctx.strokeStyle = `rgba(0, 0, 0, ${efectoVisual.opacidad})`;
-        ctx.lineWidth = 4;
-        ctx.strokeText(efectoVisual.texto, efectoVisual.x - camara.x + 20, efectoVisual.y - camara.y - 50);
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.shadowBlur = 10;
         ctx.fillText(efectoVisual.texto, efectoVisual.x - camara.x + 20, efectoVisual.y - camara.y - 50);
+        ctx.shadowBlur = 0; // Resetear sombra para que no afecte a lo demás
         
-        efectoVisual.y -= 1.5; // Sube lentamente
-        efectoVisual.opacidad -= 0.015; // Se desvanece
+        efectoVisual.y -= 1.5; 
+        efectoVisual.opacidad -= 0.015; 
     }
 }
 
-// --- BUCLE ---
 function loop() {
     actualizarLogica();
     dibujarJuego();
     requestAnimationFrame(loop);
 }
 
-// --- INICIO ---
-cargarDatosJugador(); 
-obtenerRanking();     
-actualizarPeso();     
-loop();
+// NOTA: El loop ya NO se llama aquí automáticamente. 
+// Ahora se llama desde la función autenticar() en la línea 81 cuando el login es correcto.

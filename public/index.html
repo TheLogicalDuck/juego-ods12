@@ -14,7 +14,7 @@
             padding: 0;
             background-color: #1a252c;
             overflow: hidden; 
-            font-family: 'Poppins', sans-serif; /* Fuente moderna */
+            font-family: 'Poppins', sans-serif;
             color: #e2e8f0;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -25,11 +25,65 @@
             background-color: #a8e6cf;
         }
 
+        /* --- PANTALLA DE LOGIN --- */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=2070') center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .login-box {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 300px;
+        }
+        .login-box h1 { margin-top: 0; color: #4ade80; }
+        .login-box input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+        }
+        .login-box input::placeholder { color: rgba(255,255,255,0.5); }
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-login { background: #3498db; color: white; }
+        .btn-login:hover { background: #2980b9; }
+        .btn-register { background: transparent; border: 1px solid #4ade80; color: #4ade80; }
+        .btn-register:hover { background: rgba(74, 222, 128, 0.1); }
+        #login-error { color: #ef4444; font-size: 0.9em; margin-top: 10px; display: none; }
+
+        /* --- TODO EL JUEGO ESTÁ OCULTO AL INICIO --- */
+        #game-ui { display: none; }
+
         /* --- ESTILO GLASSMORPHISM (Vidrio Esmerilado) --- */
         .glass-panel {
             position: absolute;
-            background: rgba(15, 23, 42, 0.65); /* Azul muy oscuro transparente */
-            backdrop-filter: blur(12px); /* Efecto borroso de Apple */
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
@@ -40,10 +94,9 @@
 
         /* --- PANEL IZQUIERDO (Inventario) --- */
         #ui-container { top: 20px; left: 20px; min-width: 180px; }
-        
         h3 { 
             margin: 0 0 15px 0; 
-            color: #fbbf24; /* Amarillo dorado */
+            color: #fbbf24;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -51,7 +104,6 @@
             border-bottom: 2px solid rgba(255,255,255,0.1);
             padding-bottom: 8px;
         }
-
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -59,14 +111,12 @@
             margin-bottom: 10px;
             font-size: 0.95em;
         }
-
         .puntos-destacados { 
-            color: #4ade80; /* Verde brillante */
+            color: #4ade80;
             font-weight: 800; 
             font-size: 1.4em;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); /* Resplandor */
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
         }
-
         .badge {
             background: rgba(255, 255, 255, 0.15);
             padding: 4px 10px;
@@ -75,7 +125,6 @@
             min-width: 20px;
             text-align: center;
         }
-
         #ui-peso { 
             font-size: 0.85em; 
             background: rgba(239, 68, 68, 0.2);
@@ -86,13 +135,7 @@
 
         /* --- PANEL DERECHO (Ranking) --- */
         #ranking-container { top: 20px; right: 20px; min-width: 220px; }
-        
-        #lista-ranking { 
-            list-style: none; /* Quitamos los números feos */
-            padding: 0; 
-            margin: 0; 
-        }
-        
+        #lista-ranking { list-style: none; padding: 0; margin: 0; }
         #lista-ranking li { 
             background: rgba(255,255,255,0.05);
             margin-bottom: 8px; 
@@ -109,7 +152,7 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* --- CONTROLES MÓVILES (Estilo Arcade Moderno) --- */
+        /* --- CONTROLES MÓVILES --- */
         #controles-moviles {
             display: none; 
             position: absolute;
@@ -119,7 +162,6 @@
             pointer-events: none; 
             z-index: 20;
         }
-
         .cruceta {
             position: absolute;
             left: 30px;
@@ -130,14 +172,12 @@
             gap: 8px;
             pointer-events: auto;
         }
-
         .btn-accion-container {
             position: absolute;
             right: 40px;
             bottom: 40px;
             pointer-events: auto;
         }
-
         .btn-tactil {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(5px);
@@ -155,12 +195,10 @@
             background: rgba(255, 255, 255, 0.4); 
             transform: scale(0.95);
         }
-
         #btn-up { grid-column: 2; grid-row: 1; }
         #btn-left { grid-column: 1; grid-row: 2; }
         #btn-right { grid-column: 3; grid-row: 2; }
         #btn-down { grid-column: 2; grid-row: 3; }
-
         #btn-accion {
             width: 80px;
             height: 80px;
@@ -171,6 +209,7 @@
         }
         #btn-accion:active { background: rgba(74, 222, 128, 0.6); }
 
+        /* MEDIA QUERY PARA MOSTRAR BOTONES EN CELULAR */
         @media (max-width: 768px) {
             #controles-moviles { display: block; }
             .glass-panel { padding: 12px; transform: scale(0.85); transform-origin: top; }
@@ -179,56 +218,76 @@
 </head>
 <body>
 
-    <!-- Panel Izquierdo -->
-    <div id="ui-container" class="glass-panel">
-        <h3>Tu Impacto</h3>
-        <div class="info-row">
-            <span>👤 <span id="ui-nombre" style="color: #60a5fa; font-weight: 600;"></span></span>
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>Eco-Reciclador</h1>
+            <p style="font-size: 0.9em; color: #94a3b8; margin-bottom: 20px;">ODS 12: Producción Responsable</p>
+            
+            <input type="text" id="username" placeholder="Nombre de Usuario" autocomplete="off">
+            <input type="password" id="password" placeholder="Contraseña">
+            
+            <button class="btn-auth btn-login" onclick="autenticar('login')">Iniciar Sesión</button>
+            <button class="btn-auth btn-register" onclick="autenticar('registro')">Crear Cuenta</button>
+            
+            <p id="login-error"></p>
         </div>
-        <div class="info-row">
-            <span>⭐ Puntos:</span>
-            <span id="ui-puntos" class="puntos-destacados">0</span>
-        </div>
+    </div>
+
+    <!-- TODO EL ENTORNO DEL JUEGO (Oculto al iniciar) -->
+    <div id="game-ui">
         
-        <h3 style="margin-top: 15px; font-size: 0.9em; color:#94a3b8;">Inventario</h3>
-        <div class="info-row" style="margin-bottom: 15px;">
-            <span>🎒 Carga:</span>
-            <span id="ui-peso">Ligera</span>
+        <!-- Panel Izquierdo -->
+        <div id="ui-container" class="glass-panel">
+            <h3>Tu Impacto</h3>
+            <div class="info-row">
+                <span>👤 <span id="ui-nombre" style="color: #60a5fa; font-weight: 600;"></span></span>
+            </div>
+            <div class="info-row">
+                <span>⭐ Puntos:</span>
+                <span id="ui-puntos" class="puntos-destacados">0</span>
+            </div>
+            
+            <h3 style="margin-top: 15px; font-size: 0.9em; color:#94a3b8;">Inventario</h3>
+            <div class="info-row" style="margin-bottom: 15px;">
+                <span>🎒 Carga:</span>
+                <span id="ui-peso">Ligera</span>
+            </div>
+            <div class="info-row">
+                <span>🧴 Plástico</span>
+                <span class="badge" id="inv-plastico">0</span>
+            </div>
+            <div class="info-row">
+                <span>🗞️ Papel</span>
+                <span class="badge" id="inv-papel">0</span>
+            </div>
         </div>
-        
-        <div class="info-row">
-            <span>🧴 Plástico</span>
-            <span class="badge" id="inv-plastico">0</span>
-        </div>
-        <div class="info-row">
-            <span>🗞️ Papel</span>
-            <span class="badge" id="inv-papel">0</span>
-        </div>
-    </div>
 
-    <!-- Panel Derecho -->
-    <div id="ranking-container" class="glass-panel">
-        <h3>🏆 Leaderboard</h3>
-        <ul id="lista-ranking">
-            <li>Cargando datos...</li>
-        </ul>
-    </div>
-
-    <!-- Controles Móviles -->
-    <div id="controles-moviles">
-        <div class="cruceta">
-            <div id="btn-up" class="btn-tactil">▲</div>
-            <div id="btn-left" class="btn-tactil">◀</div>
-            <div id="btn-down" class="btn-tactil">▼</div>
-            <div id="btn-right" class="btn-tactil">▶</div>
+        <!-- Panel Derecho -->
+        <div id="ranking-container" class="glass-panel">
+            <h3>🏆 Leaderboard</h3>
+            <ul id="lista-ranking">
+                <!-- Se llena con JS -->
+            </ul>
         </div>
-        <div class="btn-accion-container">
-            <div id="btn-accion" class="btn-tactil">♻️</div>
-        </div>
-    </div>
 
-    <!-- Canvas -->
-    <canvas id="gameCanvas"></canvas>
+        <!-- Controles Móviles -->
+        <div id="controles-moviles">
+            <div class="cruceta">
+                <div id="btn-up" class="btn-tactil">▲</div>
+                <div id="btn-left" class="btn-tactil">◀</div>
+                <div id="btn-down" class="btn-tactil">▼</div>
+                <div id="btn-right" class="btn-tactil">▶</div>
+            </div>
+            <div class="btn-accion-container">
+                <div id="btn-accion" class="btn-tactil">♻️</div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <canvas id="gameCanvas"></canvas>
+
+    </div>
 
     <script src="game.js"></script>
     
